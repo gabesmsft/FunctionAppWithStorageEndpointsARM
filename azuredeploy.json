@@ -6,7 +6,7 @@
       "type": "string",
       "defaultValue": "[concat('FuncApp-', uniqueString(resourceGroup().id))]"
     },
-    "appServicePlanName": {
+    "AppServicePlanName": {
       "type": "string",
       "defaultValue": "[concat(parameters('AppName'), '-asp')]"
     },
@@ -59,7 +59,6 @@
     }
   },
   "variables": {
-    "uniqueStringId": "[uniqueString(resourceGroup().id)]",
     "privateEndpointWebJobsQueueStorageName": "[concat(parameters('StorageAccountNamePE'), '-queue-private-endpoint')]",
     "privateEndpointWebJobsTableStorageName": "[concat(parameters('StorageAccountNamePE'), '-table-private-endpoint')]",
     "privateEndpointWebJobsBlobStorageName": "[concat(parameters('StorageAccountNamePE'), '-blob-private-endpoint')]",
@@ -319,7 +318,7 @@
       ],
       "properties": {
         "subnet": {
-          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('privateEndpointSubnetName') )]"
+          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('privateEndpointSubnetName'))]"
         },
         "privateLinkServiceConnections": [
           {
@@ -366,7 +365,7 @@
       ],
       "properties": {
         "subnet": {
-          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('privateEndpointSubnetName') )]"
+          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('privateEndpointSubnetName'))]"
         },
         "privateLinkServiceConnections": [
           {
@@ -498,7 +497,7 @@
     {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-09-01",
-      "name": "[parameters('appServicePlanName')]",
+      "name": "[parameters('AppServicePlanName')]",
       "location": "[parameters('location')]",
       "sku": {
         "name": "EP1",
@@ -518,12 +517,12 @@
       "name": "[parameters('AppName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountNameNoPE'))]"
       ],
       "kind": "functionapp",
       "properties": {
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]",
         "siteConfig": {
           "appSettings": [
             {
@@ -583,28 +582,37 @@
         "functionsRuntimeScaleMonitoringEnabled": true
       }
     },
-
     {
-      "name": "functionapp",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2020-06-01",
+      "name": "functionapp",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointWebJobsQueueStorageName'))]",
+        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointWebJobsTableStorageName'))]",
+        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointWebJobsBlobStorageName'))]",
+        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointWebJobsFileStorageName'))]"
+      ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('nestedtemplateUri')]",
+           "uri": "[variables('nestedtemplateUri')]",
           "contentVersion": "1.0.0.0"
-        },
+        }
+        /*,
         "parameters": {
           "storageAccountNamePE": {
-            "value": "[parameters('storageAccountNamePE')]"
+            "value":  "test"
+            //"value": "[parameters('storageAccountNamePE')]"
           },
           "appServicePlanName": {
-            "value": "[parameters('AppServicePlanName')]"
+            "value": "test"
+            //"value": "[parameters('AppServicePlanName')]"
           }
         }
+  */
       }
     }
-  ],
+    ],
   "outputs": {
   }
 }

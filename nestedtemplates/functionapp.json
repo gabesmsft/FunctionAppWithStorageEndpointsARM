@@ -6,7 +6,7 @@
       "type": "string",
       "defaultValue": "[concat('FuncApp-', uniqueString(resourceGroup().id))]"
     },
-    "appServicePlanName": {
+    "AppServicePlanName": {
       "type": "string",
       "defaultValue": "[concat(parameters('AppName'), '-asp')]"
     },
@@ -31,7 +31,7 @@
       "location": "[parameters('location')]",
       "kind": "functionapp",
       "properties": {
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]",
         "siteConfig": {
           "appSettings": [
             {
