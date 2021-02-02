@@ -14,10 +14,6 @@
       "type": "string",
       "defaultValue": "[toLower(concat(uniqueString(resourceGroup().id), 'pe'))]"
     },
-    "blobContainerName": {
-      "type": "string",
-      "defaultValue": "somecontainer"
-    },
     "location": {
       "type": "string",
       "defaultValue": "[resourceGroup().location]"
