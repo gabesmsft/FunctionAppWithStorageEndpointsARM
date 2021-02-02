@@ -27,10 +27,6 @@
       "type": "string",
       "defaultValue": "[toLower(concat(uniqueString(resourceGroup().id), 'pe'))]"
     },
-    "blobContainerName": {
-      "type": "string",
-      "defaultValue": "somecontainer"
-    },
     "location": {
       "type": "string",
       "defaultValue": "[resourceGroup().location]"
@@ -47,9 +43,19 @@
       "type": "string",
       "defaultValue": "10.100.1.0/24"
     },
-    "FunctionAppLinkedTemplateUri": {
+    "_artifactsLocation": {
       "type": "string",
-      "defaultValue": "10.100.1.0/24"
+      "metadata": {
+        "description": "Artifactslocation"
+      },
+      "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-app-function-storage-private-endpoints/"
+    },
+    "_artifactsLocationSasToken": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Reserved for deploying using Visual Studio. Please keep it as an empty string"
+      }
     }
   },
   "variables": {
@@ -64,7 +70,8 @@
     "privateStorageFileDnsZoneName": "privatelink.file.core.windows.net",
     "FileShareNameNoPE": "[concat(toLower(parameters('AppName')), 'a75d')]",
     "FileShareNamePE": "[concat(toLower(parameters('AppName')), 'b86e')]",
-    "appInsightsResourceId": "[resourceId('Microsoft.Insights/components', parameters('AppName'))]"
+    "appInsightsResourceId": "[resourceId('Microsoft.Insights/components', parameters('AppName'))]",
+    "nestedtemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/functionapp.json', parameters('_artifactsLocationSasToken')))]"
   },
   "resources": [
     {
@@ -198,15 +205,6 @@
         "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountNamePE'))]"
       ]
     },
-    {
-      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-      "apiVersion": "2019-06-01",
-      "name": "[concat(parameters('StorageAccountNamePE'), '/default/', parameters('blobContainerName'))]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountNamePE'))]"
-      ]
-    },
-
     {
       "type": "Microsoft.Insights/components",
       "apiVersion": "2020-02-02-preview",
@@ -587,20 +585,22 @@
     },
 
     {
-      "comments": "Common",
-      "name": "vnetstorage",
+      "name": "functionapp",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
+      "apiVersion": "2020-10-01",
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('vnetstorageSciptrul')]",
+          "uri": "[variables('nestedtemplateUri')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-          "storageAccountName": {
-            "value": "[variables('storageAccountName')]"
+          "storageAccountNamePE": {
+            "value": "[parameters('storageAccountNamePE')]"
           },
+          "appServicePlanName": {
+            "value": "[parameters('AppServicePlanName')]"
+          }
         }
       }
     }
