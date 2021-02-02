@@ -48,7 +48,7 @@
       "metadata": {
         "description": "Artifactslocation"
       },
-      "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-app-function-storage-private-endpoints/"
+      "defaultValue": "https://raw.githubusercontent.com/gabesmsft/FunctionAppWithStorageEndpointsARM/tree/master/"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -595,24 +595,20 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-           "uri": "[variables('nestedtemplateUri')]",
+          "uri": "[variables('nestedtemplateUri')]",
           "contentVersion": "1.0.0.0"
-        }
-        /*,
+        },
         "parameters": {
           "storageAccountNamePE": {
-            "value":  "test"
-            //"value": "[parameters('storageAccountNamePE')]"
+            "value": "[parameters('storageAccountNamePE')]"
           },
           "appServicePlanName": {
-            "value": "test"
-            //"value": "[parameters('AppServicePlanName')]"
+            "value": "[parameters('AppServicePlanName')]"
           }
         }
-  */
       }
     }
-    ],
+  ],
   "outputs": {
   }
 }
