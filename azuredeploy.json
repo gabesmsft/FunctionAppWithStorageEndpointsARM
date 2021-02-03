@@ -23,7 +23,7 @@
       "type": "string",
       "defaultValue": "[toLower(concat(uniqueString(resourceGroup().id), 'nope'))]"
     },
-    "StorageAccountNamePE": {
+    "StorageAccountName": {
       "type": "string",
       "defaultValue": "[toLower(concat(uniqueString(resourceGroup().id), 'pe'))]"
     },
@@ -42,35 +42,19 @@
     "privateEndpointSubnetAddressPrefix": {
       "type": "string",
       "defaultValue": "10.100.1.0/24"
-    },
-    "_artifactsLocation": {
-      "type": "string",
-      "metadata": {
-        "description": "Artifactslocation"
-      },
-      "defaultValue": "https://raw.githubusercontent.com/gabesmsft/FunctionAppWithStorageEndpointsARM/tree/master/"
-    },
-    "_artifactsLocationSasToken": {
-      "type": "securestring",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Reserved for deploying using Visual Studio. Please keep it as an empty string"
-      }
     }
   },
   "variables": {
-    "privateEndpointWebJobsQueueStorageName": "[concat(parameters('StorageAccountNamePE'), '-queue-private-endpoint')]",
-    "privateEndpointWebJobsTableStorageName": "[concat(parameters('StorageAccountNamePE'), '-table-private-endpoint')]",
-    "privateEndpointWebJobsBlobStorageName": "[concat(parameters('StorageAccountNamePE'), '-blob-private-endpoint')]",
-    "privateEndpointWebJobsFileStorageName": "[concat(parameters('StorageAccountNamePE'), '-file-private-endpoint')]",
+    "privateEndpointQueueStorageName": "[concat(parameters('StorageAccountName'), '-queue-private-endpoint')]",
+    "privateEndpointTableStorageName": "[concat(parameters('StorageAccountName'), '-table-private-endpoint')]",
+    "privateEndpointBlobStorageName": "[concat(parameters('StorageAccountName'), '-blob-private-endpoint')]",
+    "privateEndpointFileStorageName": "[concat(parameters('StorageAccountName'), '-file-private-endpoint')]",
     "privateStorageQueueDnsZoneName": "privatelink.queue.core.windows.net",
     "privateStorageBlobDnsZoneName": "privatelink.blob.core.windows.net",
     "privateStorageTableDnsZoneName": "privatelink.table.core.windows.net",
     "privateStorageFileDnsZoneName": "privatelink.file.core.windows.net",
-    "FileShareNameNoPE": "[concat(toLower(parameters('AppName')), 'a75d')]",
-    "FileShareNamePE": "[concat(toLower(parameters('AppName')), 'b86e')]",
     "appInsightsResourceId": "[resourceId('Microsoft.Insights/components', parameters('AppName'))]",
-    "nestedtemplateUri": "[uri(parameters('_artifactsLocation'), concat('nestedtemplates/functionapp.json', parameters('_artifactsLocationSasToken')))]"
+    "fileShareName": "[concat(toLower(parameters('AppName')), 'b86e')]"
   },
   "resources": [
     {
@@ -134,38 +118,7 @@
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ],
-      "name": "[parameters('StorageAccountNameNoPE')]",
-      "sku": {
-        "name": "Standard_LRS",
-        "tier": "Standard"
-      },
-      "kind": "StorageV2",
-      "properties": {
-        "supportsHttpsTrafficOnly": true,
-        "encryption": {
-          "services": {
-            "file": {
-              "keyType": "Account",
-              "enabled": true
-            },
-            "blob": {
-              "keyType": "Account",
-              "enabled": true
-            }
-          },
-          "keySource": "Microsoft.Storage"
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2019-06-01",
-      "location": "[parameters('location')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]",
-        "[resourceId('Microsoft.Web/sites/networkConfig', parameters('AppName'), 'virtualNetwork')]"
-      ],
-      "name": "[parameters('StorageAccountNamePE')]",
+      "name": "[parameters('StorageAccountName')]",
       "sku": {
         "name": "Standard_LRS",
         "tier": "Standard"
@@ -199,9 +152,9 @@
     {
       "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
       "apiVersion": "2019-06-01",
-      "name": "[concat(parameters('StorageAccountNamePE'), '/default/', variables('fileShareNamePE'))]",
+      "name": "[concat(parameters('StorageAccountName'), '/default/', variables('fileShareName'))]",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountNamePE'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]"
       ]
     },
     {
@@ -308,12 +261,12 @@
     },
     {
       "type": "Microsoft.Network/privateEndpoints",
-      "name": "[variables('privateEndpointWebJobsQueueStorageName')]",
+      "name": "[variables('privateEndpointQueueStorageName')]",
       "apiVersion": "2020-06-01",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountNamePE'), 'default', variables('fileShareNamePE'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountNamePE'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', variables('fileShareName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ],
       "properties": {
@@ -324,7 +277,7 @@
           {
             "name": "MyStorageQueuePrivateLinkConnection",
             "properties": {
-              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountNamePE'))]",
+              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
               "groupIds": [
                 "queue"
               ]
@@ -337,10 +290,10 @@
       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
       "apiVersion": "2020-06-01",
       "location": "[parameters('location')]",
-      "name": "[concat(variables('privateEndpointWebJobsQueueStorageName'), '/default')]",
+      "name": "[concat(variables('privateEndpointQueueStorageName'), '/default')]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateStorageQueueDnsZoneName'))]",
-        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointWebJobsQueueStorageName'))]"
+        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointQueueStorageName'))]"
       ],
       "properties": {
         "privateDnsZoneConfigs": [
@@ -355,12 +308,12 @@
     },
     {
       "type": "Microsoft.Network/privateEndpoints",
-      "name": "[variables('privateEndpointWebJobsTableStorageName')]",
+      "name": "[variables('privateEndpointTableStorageName')]",
       "apiVersion": "2020-06-01",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountNamePE'), 'default', variables('fileShareNamePE'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountNamePE'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', variables('fileShareName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ],
       "properties": {
@@ -371,7 +324,7 @@
           {
             "name": "MyStorageQueuePrivateLinkConnection",
             "properties": {
-              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountNamePE'))]",
+              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
               "groupIds": [
                 "table"
               ]
@@ -384,10 +337,10 @@
       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
       "apiVersion": "2020-06-01",
       "location": "[parameters('location')]",
-      "name": "[concat(variables('privateEndpointWebJobsTableStorageName'), '/default')]",
+      "name": "[concat(variables('privateEndpointTableStorageName'), '/default')]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateStorageTableDnsZoneName'))]",
-        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointWebJobsTableStorageName'))]"
+        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointTableStorageName'))]"
       ],
       "properties": {
         "privateDnsZoneConfigs": [
@@ -402,12 +355,12 @@
     },
     {
       "type": "Microsoft.Network/privateEndpoints",
-      "name": "[variables('privateEndpointWebJobsBlobStorageName')]",
+      "name": "[variables('privateEndpointBlobStorageName')]",
       "apiVersion": "2020-06-01",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountNamePE'), 'default', variables('fileShareNamePE'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountNamePE'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', variables('fileShareName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ],
       "properties": {
@@ -418,7 +371,7 @@
           {
             "name": "MyStorageQueuePrivateLinkConnection",
             "properties": {
-              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountNamePE'))]",
+              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
               "groupIds": [
                 "blob"
               ]
@@ -431,10 +384,10 @@
       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
       "apiVersion": "2020-06-01",
       "location": "[parameters('location')]",
-      "name": "[concat(variables('privateEndpointWebJobsBlobStorageName'), '/default')]",
+      "name": "[concat(variables('privateEndpointBlobStorageName'), '/default')]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateStorageBlobDnsZoneName'))]",
-        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointWebJobsBlobStorageName'))]"
+        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointBlobStorageName'))]"
       ],
       "properties": {
         "privateDnsZoneConfigs": [
@@ -449,12 +402,12 @@
     },
     {
       "type": "Microsoft.Network/privateEndpoints",
-      "name": "[variables('privateEndpointWebJobsFileStorageName')]",
+      "name": "[variables('privateEndpointFileStorageName')]",
       "apiVersion": "2020-06-01",
       "location": "[parameters('location')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountNamePE'), 'default', variables('fileShareNamePE'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountNamePE'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', variables('fileShareName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
       ],
       "properties": {
@@ -465,7 +418,7 @@
           {
             "name": "MyStorageQueuePrivateLinkConnection",
             "properties": {
-              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountNamePE'))]",
+              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName'))]",
               "groupIds": [
                 "file"
               ]
@@ -478,10 +431,10 @@
       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
       "apiVersion": "2020-06-01",
       "location": "[parameters('location')]",
-      "name": "[concat(variables('privateEndpointWebJobsFileStorageName'), '/default')]",
+      "name": "[concat(variables('privateEndpointFileStorageName'), '/default')]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateStorageFileDnsZoneName'))]",
-        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointWebJobsFileStorageName'))]"
+        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointFileStorageName'))]"
       ],
       "properties": {
         "privateDnsZoneConfigs": [
@@ -518,7 +471,7 @@
       "location": "[parameters('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Web/serverfarms', parameters('AppServicePlanName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountNameNoPE'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', parameters('StorageAccountName'), 'default', variables('fileShareName'))]"
       ],
       "kind": "functionapp",
       "properties": {
@@ -535,7 +488,7 @@
             },
             {
               "name": "AzureWebJobsStorage",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('StorageAccountNameNoPE'),';AccountKey=',listkeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountNameNoPE')), '2019-06-01').keys[0].value,';')]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('StorageAccountName'),';AccountKey=',listkeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value,';')]"
             },
             {
               "name": "FUNCTIONS_EXTENSION_VERSION",
@@ -547,11 +500,23 @@
             },
             {
               "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('StorageAccountNameNoPE'),';AccountKey=',listkeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountNameNoPE')), '2019-06-01').keys[0].value,';')]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('StorageAccountName'),';AccountKey=',listkeys(resourceId('Microsoft.Storage/storageAccounts', parameters('StorageAccountName')), '2019-06-01').keys[0].value,';')]"
             },
             {
               "name": "WEBSITE_CONTENTSHARE",
-              "value": "[variables('fileShareNameNoPE')]"
+              "value": "[variables('fileShareName')]"
+            },
+            {
+              "name": "WEBSITE_VNET_ROUTE_ALL",
+              "value": "1"
+            },
+            {
+              "name": "WEBSITE_CONTENTOVERVNET",
+              "value": "1"
+            },
+            {
+              "name": "WEBSITE_DNS_SERVER",
+              "value": "168.63.129.16"
             }
           ]
         }
@@ -580,32 +545,6 @@
       ],
       "properties": {
         "functionsRuntimeScaleMonitoringEnabled": true
-      }
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
-      "name": "functionapp",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointWebJobsQueueStorageName'))]",
-        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointWebJobsTableStorageName'))]",
-        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointWebJobsBlobStorageName'))]",
-        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointWebJobsFileStorageName'))]"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('nestedtemplateUri')]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "storageAccountNamePE": {
-            "value": "[parameters('storageAccountNamePE')]"
-          },
-          "appServicePlanName": {
-            "value": "[parameters('AppServicePlanName')]"
-          }
-        }
       }
     }
   ],

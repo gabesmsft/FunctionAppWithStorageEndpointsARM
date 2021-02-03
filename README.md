@@ -7,14 +7,12 @@ This sample Azure Resource Manager template deploys an Azure Function App that c
 
 The Azure Function app provisioned in this sample uses an [Azure Functions Elastic Premium plan](https://docs.microsoft.com/azure/azure-functions/functions-premium-plan#features). 
 
-The Function App must first be deployed with an Storage account that is not virtual network-secured. After the Function App is created, the deployment will then update the Function App's AzureWebJobsStorage and WEBSITE_CONTENTAZUREFILECONNECTIONSTRING with a private endpoint-secured Storage Account.
+The Function App uses the AzureWebJobsStorage and WEBSITE_CONTENTAZUREFILECONNECTIONSTRING app settins to connect to a private endpoint-secured Storage Account.
+.
 
-We will use the linked template file nestedtemplates\functionapp.json to update the Function App's app settings with the private endpoint-secured Storage Account connection strings.
+### Azure Storage account
+The Storage account that the Function uses for operation and for file contents. 
 
-### Azure Storage accounts
-Two Storage accounts will be deployed:
--A non-virtual network-secured Storage Account, which is suffixed with 'nope'. This Storage account must be used when creating the Function App. You can delete this Storage account after deploying the template.
--A private endpoint-secured Azure Storage account, which is suffixed with 'pe'. The Function App will be updated to use this Storage Account, via the linked template file nestedtemplates\functionapp.json.
 
 ### Virtual Network
 
