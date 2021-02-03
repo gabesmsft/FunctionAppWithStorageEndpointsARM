@@ -7,7 +7,7 @@ This sample Azure Resource Manager template deploys an Azure Function App that c
 
 The Azure Function app provisioned in this sample uses an [Azure Functions Elastic Premium plan](https://docs.microsoft.com/azure/azure-functions/functions-premium-plan#features). 
 
-The Function App uses the AzureWebJobsStorage and WEBSITE_CONTENTAZUREFILECONNECTIONSTRING app settins to connect to a private endpoint-secured Storage Account.
+The Function App uses the AzureWebJobsStorage and WEBSITE_CONTENTAZUREFILECONNECTIONSTRING app settings to connect to a private endpoint-secured Storage Account.
 .
 
 ### Azure Storage account

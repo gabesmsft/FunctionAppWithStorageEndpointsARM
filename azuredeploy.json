@@ -19,10 +19,6 @@
     "privateEndpointSubnetName": {
       "type": "string"
     },
-    "StorageAccountNameNoPE": {
-      "type": "string",
-      "defaultValue": "[toLower(concat(uniqueString(resourceGroup().id), 'nope'))]"
-    },
     "StorageAccountName": {
       "type": "string",
       "defaultValue": "[toLower(concat(uniqueString(resourceGroup().id), 'pe'))]"
