@@ -2,7 +2,7 @@
 
 This sample Azure Resource Manager template deploys an Azure Function App that communicates with the Azure Storage account referenced by the [AzureWebJobsStorage](https://docs.microsoft.com/azure/azure-functions/functions-app-settings#azurewebjobsstorage) and [WEBSITE_CONTENTAZUREFILECONNECTIONSTRING](https://docs.microsoft.com/azure/azure-functions/functions-app-settings#website_contentazurefileconnectionstring) app settings, [via private endpoints](https://docs.microsoft.com/en-us/azure/azure-functions/functions-networking-options#private-endpoints). 
 
-![Function App with Storage Private Endpoints](function-app-storage-privateendponts.png) 
+![Function App with Storage Private Endpoints](/images/function-app-storage-privateendponts.png) 
 
 ### Azure Function App
 
@@ -68,10 +68,10 @@ You will need a user-assigned managed identity to run the script because the scr
 The principal that is used to deploy the ARM template will need Managed Identity Operator permissions in order to use the managed identity. The deployment principal will also need the permissions described in [this document]. If you are using a deployment principal is assigned the Contributor role to the resource group, then the principal would already have these permissions and you shouldn't need to assign the Managed Identity Operator role or create a custom role for these actions. By default, the template assumes that the principal is a Contributor and does not assign permissions to the principal.
 
 The prereqs template does the following:
--Creates a user-assigned managed identity.
--Creates a custom role with the necessary permissions to perform operations on Function Apps and App Service Plans and assigns this role to the managed identity. By default, the role is created and assigned in the scope of the resource group.
--If the isContributor parameter is set to false: creates a custom role with the necessary permissions to run the deployment script and assigns this role to the deployment principal. By default, the role is created and assigned in the scope of the resource group.
--If the isContributor parameter is set to false: Assigns the deployment principal as a Managed Identity Operator to the managed identity.
+- Creates a user-assigned managed identity.
+- Creates a custom role with the necessary permissions to perform operations on Function Apps and App Service Plans and assigns this role to the managed identity. By default, the role is created and assigned in the scope of the resource group.
+- If the isContributor parameter is set to false: creates a custom role with the necessary permissions to run the deployment script and assigns this role to the deployment principal. By default, the role is created and assigned in the scope of the resource group.
+- If the isContributor parameter is set to false: Assigns the deployment principal as a Managed Identity Operator to the managed identity.
 
 In order to run the prereq template, you must have Owner permissions in the scope that you are assigning roles in. For example, if using the default scope of resource group, you must have Owner permissions on the resource group.
 
@@ -79,9 +79,6 @@ You will also need to provide the object id of an existing deployment principal,
 Note: The object id of a service principal is different from the object id of the AAD App registration. 
 You can get the object id of a service principal via [PowerShell](https://docs.microsoft.com/en-us/powershell/module/azuread/get-azureadserviceprincipal?view=azureadps-2.0#example-2--retrieve-a-service-principal-by-id
 ) or [CLI](https://docs.microsoft.com/en-us/cli/azure/ad/sp?view=azure-cli-latest#az_ad_sp_show-examples).
-
-by running the commands shown
-https://docs.microsoft.com/en-us/powershell/module/azuread/get-azureadserviceprincipal?view=azureadps-2.0#example-2--retrieve-a-service-principal-by-id
 
 #### Using the deployment script in the main template
 
