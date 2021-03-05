@@ -60,7 +60,6 @@
     "identityActions": {
       "type": "array",
       "defaultValue": [
-        "Microsoft.Web/serverfarms/*",
         "Microsoft.Web/sites/*"
       ],
       "metadata": {

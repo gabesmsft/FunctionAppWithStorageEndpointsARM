@@ -12,8 +12,6 @@ The Function App uses the AzureWebJobsStorage and WEBSITE_CONTENTAZUREFILECONNEC
 
 The Azure Function app provisioned in this sample uses an [Azure Functions Elastic Premium plan](https://docs.microsoft.com/azure/azure-functions/functions-premium-plan#features). 
 
-If you don't execute the optional inline deployment script, specify the plan size that you want in the "initialplansize" parameter, and you can ignore the "finalplansize" parameter. Otherwise, set "initialplansize" to a value that is different from the size you want the plan to use.
-
 ### Azure Storage account
 
 The Storage account that the Function uses for operation and for file contents. 
@@ -57,9 +55,9 @@ The following DNS zones are created in this sample:
 
 ### Optional in-line deployment script
 
-After the first time you configure the Function App to talk to the private endpoint-enabled Storage account, you may need to vertically scale the Plan and connect to the file system via Kudu (eg by performing a content deployment or by making a GET request to the Kudu /DebugConsole) to refresh the SMB connection so that the Function App can successfully retrieve the contents from the Storage account. The optional deployment script in this template automates these steps.
+After the first time you configure the Function App to talk to the private endpoint-enabled Storage account, you may need to connect to the file system via Kudu (eg by performing a content deployment or by making a GET request to the Kudu /DebugConsole) to refresh the SMB connection so that the Function App can successfully retrieve the contents from the Storage account. The optional deployment script in this template automates making a GET request to the Kudu /DebugConsole.
 
-The script will change the size of the plan, and then retrieve the site-level credentials from the publish profile and make an authenticated request to the Kudu /Debugconsole page of the Function App.
+The script will retrieve the site-level credentials from the publish profile and make an authenticated request to the Kudu /Debugconsole page of the Function App.
 
 #### Prerequisites to run the in-line deployment script
 
@@ -69,7 +67,7 @@ The principal that is used to deploy the ARM template will need Managed Identity
 
 The prereqs template does the following:
 - Creates a user-assigned managed identity.
-- Creates a custom role with the necessary permissions to perform operations on Function Apps and App Service Plans and assigns this role to the managed identity. By default, the role is created and assigned in the scope of the resource group.
+- Creates a custom role with the necessary permissions to perform operations on Function Apps and assigns this role to the managed identity. By default, the role is created and assigned in the scope of the resource group.
 - If the isContributor parameter is set to false: creates a custom role with the necessary permissions to run the deployment script and assigns this role to the deployment principal. By default, the role is created and assigned in the scope of the resource group.
 - If the isContributor parameter is set to false: Assigns the deployment principal as a Managed Identity Operator to the managed identity.
 
@@ -85,4 +83,4 @@ You can get the object id of a service principal via [PowerShell](https://docs.m
 To execute the inline deployment script in the main template:
 - For the postDeploymentScript parameter, specify either "azpowershell" or "azcli" depending on which modules your deployment environment has. If you leave the value as "none", the inline deployment script won't get executed.
 - For the "userIdentity" and "userIdentityResourceGroup" parameters, specify values that correpond to an existing User Managed Identity that has the necessary permissions described [here](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/deployment-script-template#configure-the-minimum-permissions).
-- Specify the plan size that you want in the "finalplansize" parameter, and specify a different plan size in the "initialplansize" parameter. For example, if you want the plan size to be EP1, specify "EP2" for the "initialplansize" parameter and specify "EP1" for the "finalplansize" parameter. This way, 
+
