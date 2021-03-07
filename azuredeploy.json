@@ -79,18 +79,18 @@
         "description": "Storage account's private endpoint's subnet address range."
       }
     },
+    "WEBSITE_RUN_FROM_PACKAGE": {
+      "type": "string",
+      "defaultValue": "0",
+      "metadata": {
+        "description": "The value that will be used for the WEBSITE_RUN_FROM_PACKAGE app setting on the Function App."
+      }
+    },
     "useZipDeployExtension": {
       "type": "bool",
       "defaultValue": true,
       "metadata": {
         "description": "Specify whether to use the ZipDeploy ARM extension within this ARM template deployment."
-      }
-    },
-    "WEBSITE_RUN_FROM_PACKAGE": {
-      "type": "string",
-      "defaultValue": "0",
-      "metadata": {
-        "description": "The value that will be used for the WEBSITE_RUN_FROM_PACKAGE app setting on the Function App. If setting the useZipDeployExtension parameter to true, set WEBSITE_RUN_FROM_PACKAGE to 0 otherwise the resource deployment may fail."
       }
     },
     "packageUri": {
@@ -111,7 +111,11 @@
     "privateEndpointBlobStorageName": "[concat(parameters('StorageAccountName'), '-blob-private-endpoint')]",
     "privateEndpointQueueStorageName": "[concat(parameters('StorageAccountName'), '-queue-private-endpoint')]",
     "privateEndpointTableStorageName": "[concat(parameters('StorageAccountName'), '-table-private-endpoint')]",
-    "appInsightsResourceId": "[resourceId('Microsoft.Insights/components', parameters('AppName'))]"
+    "appInsightsResourceId": "[resourceId('Microsoft.Insights/components', parameters('AppName'))]",
+    "virtualNetworkLinksSuffixFileStorageName": "[concat(variables('privateStorageFileDnsZoneName'), '-link')]",
+    "virtualNetworkLinksSuffixBlobStorageName": "[concat(variables('privateStorageBlobDnsZoneName'), '-link')]",
+    "virtualNetworkLinksSuffixQueueStorageName": "[concat(variables('privateStorageQueueDnsZoneName'), '-link')]",
+    "virtualNetworkLinksSuffixTableStorageName": "[concat(variables('privateStorageTableDnsZoneName'), '-link')]"
   },
   "resources": [
     {
@@ -239,7 +243,7 @@
     {
       "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
       "apiVersion": "2020-06-01",
-      "name": "[concat(variables('privateStorageFileDnsZoneName'), '/',variables('privateStorageFileDnsZoneName'), '-link')]",
+      "name": "[concat(variables('privateStorageFileDnsZoneName'), '/', variables('virtualNetworkLinksSuffixFileStorageName'))]",
       "location": "global",
       "dependsOn": [
         "[resourceId('Microsoft.Network/privateDnsZones',variables('privateStorageFileDnsZoneName'))]",
@@ -255,7 +259,7 @@
     {
       "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
       "apiVersion": "2020-06-01",
-      "name": "[concat(variables('privateStorageBlobDnsZoneName'), '/',variables('privateStorageBlobDnsZoneName'), '-link')]",
+      "name": "[concat(variables('privateStorageBlobDnsZoneName'), '/', variables('virtualNetworkLinksSuffixBlobStorageName'))]",
       "location": "global",
       "dependsOn": [
         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateStorageBlobDnsZoneName'))]",
@@ -271,7 +275,7 @@
     {
       "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
       "apiVersion": "2020-06-01",
-      "name": "[concat(variables('privateStorageQueueDnsZoneName'), '/', variables('privateStorageQueueDnsZoneName'), '-link')]",
+      "name": "[concat(variables('privateStorageQueueDnsZoneName'), '/', variables('virtualNetworkLinksSuffixQueueStorageName'))]",
       "location": "global",
       "dependsOn": [
         "[resourceId('Microsoft.Network/privateDnsZones', variables('privateStorageQueueDnsZoneName'))]",
@@ -287,7 +291,7 @@
     {
       "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
       "apiVersion": "2020-06-01",
-      "name": "[concat(variables('privateStorageTableDnsZoneName'), '/', variables('privateStorageTableDnsZoneName'), '-link')]",
+      "name": "[concat(variables('privateStorageTableDnsZoneName'), '/', variables('virtualNetworkLinksSuffixTableStorageName'))]",
       "location": "global",
       "dependsOn": [
         "[resourceId('Microsoft.Network/privateDnsZones',variables('privateStorageTableDnsZoneName'))]",
@@ -523,7 +527,11 @@
         "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', variables('privateEndpointFileStorageName'), 'default')]",
         "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', variables('privateEndpointBlobStorageName'), 'default')]",
         "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', variables('privateEndpointQueueStorageName'), 'default')]",
-        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', variables('privateEndpointTableStorageName'), 'default')]"
+        "[resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', variables('privateEndpointTableStorageName'), 'default')]",
+        "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privateStorageFileDnsZoneName'), variables('virtualNetworkLinksSuffixFileStorageName'))]",
+        "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privateStorageBlobDnsZoneName'), variables('virtualNetworkLinksSuffixBlobStorageName'))]",
+        "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privateStorageQueueDnsZoneName'), variables('virtualNetworkLinksSuffixQueueStorageName'))]",
+        "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privateStorageTableDnsZoneName'), variables('virtualNetworkLinksSuffixTableStorageName'))]"
       ],
       "kind": "functionapp",
       "properties": {
