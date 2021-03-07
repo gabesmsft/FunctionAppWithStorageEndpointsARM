@@ -9,9 +9,9 @@ This sample Azure Resource Manager template deploys an Azure Function App that c
 The Function App uses the AzureWebJobsStorage and WEBSITE_CONTENTAZUREFILECONNECTIONSTRING app settings to connect to a private endpoint-secured Storage Account.
 
 In order for the host.json to get generated when using Storage with private endpoints, you may need to do a content deployment or connect to the Function App's file system via Kudu.
-By default, this template sets the Function App WEBSITE_RUN_FROM_PACKAGE app setting to a zip url that consists of a default host.json, for the purpose of having a Function App that is immediately running after ARM deployment. If you are planning to deploy content immediately after resource deployment, or once you are ready to deploy code, you can change the value of [WEBSITE_RUN_FROM_PACKAGE](https://docs.microsoft.com/en-us/azure/azure-functions/run-functions-from-deployment-package#enabling-functions-to-run-from-a-package). Note: To disable WEBSITE_RUN_FROM_PACKAGE, set it to 0 or remove the setting from the app settings.
-With the default WEBSITE_RUN_FROM_PACKAGE configuration used in this template, a site restart is required. To achieve an automatic restart via template deployment, the functionsRuntimeScaleMonitoringEnabled setting has been placed in the Microsoft.Web/sites/config web section rather than in the siteConfig section of the Function App.
-
+By default, this template does a zipdeploy of a default default host.json, for the purpose of having a Function App that is immediately running after ARM deployment.
+By default, WEBSITE_RUN_FROM_PACKAGE is set to 0 to help ensure that the zipdeploy ARM extension deployment succeeds.
+If you are planning to do a separate code deployment immediately after resource deployment set the useZipDeployExtension parameter to false and you can set [WEBSITE_RUN_FROM_PACKAGE](https://docs.microsoft.com/en-us/azure/azure-functions/run-functions-from-deployment-package#enabling-functions-to-run-from-a-package) to the mode that you are planning to use for your deployment.
 
 ### Elastic Premium Plan
 

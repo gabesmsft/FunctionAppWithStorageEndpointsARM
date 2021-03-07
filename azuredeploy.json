@@ -79,13 +79,6 @@
         "description": "Storage account's private endpoint's subnet address range."
       }
     },
-    "WEBSITE_RUN_FROM_PACKAGE": {
-      "type": "string",
-      "defaultValue": "0",
-      "metadata": {
-        "description": "The value that will be used for the WEBSITE_RUN_FROM_PACKAGE app setting on the Function App."
-      }
-    },
     "useZipDeployExtension": {
       "type": "bool",
       "defaultValue": true,
@@ -93,9 +86,16 @@
         "description": "Specify whether to use the ZipDeploy ARM extension within this ARM template deployment."
       }
     },
+    "WEBSITE_RUN_FROM_PACKAGE": {
+      "type": "string",
+      "defaultValue": "0",
+      "metadata": {
+        "description": "The value that will be used for the WEBSITE_RUN_FROM_PACKAGE app setting on the Function App. If setting the useZipDeployExtension parameter to true, set WEBSITE_RUN_FROM_PACKAGE to 0 otherwise the resource deployment may fail."
+      }
+    },
     "packageUri": {
       "type": "string",
-      "defaultValue": "https://github.com/Azure/azure-quickstart-templates/101-function-app-storage-private-endpoints/raw/master/zip/host.json.zip",
+      "defaultValue": "https://github.com/gabesmsft/FunctionAppWithStorageEndpointsARM/raw/master/zip/host.json.zip",
       "metadata": {
         "description": "The package that will be deployed if the useZipDeployExtension parameter is set to true."
       }
